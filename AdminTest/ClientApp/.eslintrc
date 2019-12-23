@@ -1,0 +1,47 @@
+{
+    "parser": "babel-eslint",
+    "plugins": [
+        "react-redux"
+    ],
+    "extends": [
+        "plugin:react-redux/recommended"
+    ],
+    "rules": {
+        "quotes": [
+            "warn",
+            "single",
+            {
+                "allowTemplateLiterals": true
+            }
+        ],
+        "semi": 0,
+        "default-case": [
+            "error",
+            {
+                "commentPattern": "^no default$"
+            }
+        ],
+        "react-redux/prefer-separate-component-file": "off",
+        "no-extra-boolean-cast": "warn",
+        "react/display-name": 0
+    },
+    "settings": {
+        "react": {
+            "pragma": "React",
+            "version": "16.12"
+        }
+    },
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "node": true,
+        "es6": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    }
+}
