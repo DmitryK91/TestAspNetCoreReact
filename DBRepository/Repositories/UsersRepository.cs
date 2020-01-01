@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DBRepository.Interfaces;
@@ -34,7 +35,7 @@ namespace DBRepository.Repositories
 
                 int skip = response.itemsCount * (page - 1);
 
-                string sql = $@"SELECT 
+                FormattableString sql = $@"SELECT 
                                 ID as id, 
                                 Name as name, 
                                 BirthDate as birthdate, 
@@ -42,13 +43,14 @@ namespace DBRepository.Repositories
                                 RequestCount as requestcount
                             FROM Users
                             WHERE {filters}";
-                string pageSql = sql + $@"
+                FormattableString pageSql = $@"
+                            {sql}
                             ORDER BY {order}
                             OFFSET {skip} ROWS
                             FETCH NEXT {response.itemsCount} ROWS ONLY";
 
-                int usersCount = await context.Users.FromSql(sql).CountAsync();
-                User[] users = await context.Users.FromSql(pageSql).ToArrayAsync();
+                int usersCount = await context.Users.FromSqlInterpolated(sql).CountAsync();
+                User[] users = await context.Users.FromSqlInterpolated(pageSql).ToArrayAsync();
 
                 return new Result(users, page, usersCount / response.itemsCount);
             }
