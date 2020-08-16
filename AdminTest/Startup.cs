@@ -31,8 +31,17 @@ namespace AdminTest
                 configuration.RootPath = "ClientApp/build";
             });
 
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+
+            services.AddCors();
+
             services.AddScoped<IRepositoryContextFactory, RepositoryContextFactory>();
 
+            services.AddScoped<IStudentsRepository>(provider =>
+               new StudentsRepository(Configuration.GetConnectionString("DefaultConnection"),
+                   provider.GetService<IRepositoryContextFactory>()));
             services.AddScoped<IUsersRepository>(provider =>
                new UsersRepository(Configuration.GetConnectionString("DefaultConnection"),
                    provider.GetService<IRepositoryContextFactory>()));
@@ -54,14 +63,19 @@ namespace AdminTest
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCors();
             app.UseSpaStaticFiles();
-
             app.UseRouting();
+
+            app.UseCors(builder => builder.AllowAnyOrigin());
+
+            // app.UseAuthentication();
+            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
             });
 
             app.UseSpa(spa =>

@@ -1,150 +1,144 @@
-import React, { Component } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { getUsers } from '../../actions';
+import { GET } from '../../actions';
 import { history, sort } from '../../utils';
 import { ArrowDown, ArrowUp, Filter } from '../../css/images';
 
 
-class Headers extends Component {
+const Headers = ({ GET, columns, visibleCount, match: { params: { page } } }) => {
 
-    state = {
-        currentPage: null,
-        sortedColumn: null,
-        filters: null
-    }
+    const [currentPage, setCurrentPage] = useState();
+    const [sortedColumn, setSortedColumn] = useState();
+    const [filters, setFilters] = useState();
 
-    static getDerivedStateFromProps(nextProps, prevState) {
 
-        const currentPage = nextProps.match.params.page;
+    useEffect(() => {
 
-        if (!currentPage) {
+        if (!page) {
             history.push(`/1`);
-            return null;
+            return;
         }
 
-        if (prevState.currentPage !== currentPage) {
-            const { itemsCount, getUsers } = nextProps;
-            const { filters, sortedColumn } = prevState;
-
-            getUsers(currentPage, itemsCount, sortedColumn, filters);
+        if (currentPage !== page) {
+            setCurrentPage(page);
+            GET(page, visibleCount, sortedColumn, filters);
         }
 
-        return { currentPage }
-    }
+    }, [page, GET, visibleCount, sortedColumn, filters, currentPage]);
 
-    handleSort = (key) => {
-        const { itemsCount, getUsers } = this.props;
-        const { sortedColumn, filters, currentPage } = this.state;
+
+    const handleSort = useCallback((key) => {
 
         var newSort = {};
         newSort[key] = (!sortedColumn || sortedColumn[key] !== sort.ASC) ? sort.ASC : sort.DESC;
 
-        getUsers(currentPage, itemsCount, newSort, filters);
+        setSortedColumn(newSort);
 
-        this.setState({
-            sortedColumn: newSort
-        });
-    }
+        if (currentPage !== '1')
+            history.push('/1');
+        else
+            GET(1, visibleCount, newSort, filters);
 
-    handleFilter = (e) => {
+    }, [GET, currentPage, sortedColumn, visibleCount, filters]);
+
+
+    const handleFilter = useCallback((e) => {
+
         if (e.key !== 'Enter') return;
 
         e.preventDefault();
 
-        const { itemsCount, getUsers } = this.props;
-        const { sortedColumn, filters } = this.state;
+        if (currentPage !== '1')
+            history.push('/1');
+        else
+            GET(1, visibleCount, sortedColumn, filters);
 
-        getUsers(1, itemsCount, sortedColumn, filters);
+    }, [GET, currentPage, sortedColumn, visibleCount, filters]);
 
-        history.push('/1');
-    }
 
-    handleChangeText = (key, e) => {
+    const handleChangeText = useCallback((key, e) => {
+
         e.preventDefault();
 
         const val = e.target.value;
 
-        const { filters } = this.state;
-
         var newFilter = filters ? filters.filter(f => f.Item1 !== key) : [];
         newFilter = [...newFilter, { Item1: key, Item2: val }];
 
-        this.setState({ filters: newFilter });
-    }
+        setFilters(newFilter);
 
-    handleClearFilter = (key, e) => {
+    }, [filters]);
+
+
+    const handleClearFilter = useCallback((key, e) => {
+
         e.preventDefault();
 
-        const { itemsCount, getUsers } = this.props;
-        const { sortedColumn, filters } = this.state;
         var newFilter = filters ? filters.filter(f => f.Item1 !== key) : null;
         newFilter = newFilter.length ? newFilter : null;
 
-        getUsers(1, itemsCount, sortedColumn, newFilter);
+        setFilters(newFilter);
 
-        this.setState({ filters: newFilter });
+        if (currentPage !== '1')
+            history.push('/1');
+        else
+            GET(1, visibleCount, sortedColumn, newFilter);
 
-        history.push('/1');
-    }
+    }, [GET, filters, currentPage, sortedColumn, visibleCount]);
 
-    render() {
 
-        const { columns } = this.props;
-        const { sortedColumn, filters } = this.state;
+    return (
+        <div className='headers'>
+            {
+                Object.keys(columns).map((key, index) => {
 
-        return (
-            <div className='headers'>
-                {
-                    Object.keys(columns).map((key, index) => {
+                    const filter = filters ? filters.find(f => f.Item1 === key) : null;
+                    const filterText = filter ? filter.Item2 : '';
 
-                        const filter = filters ? filters.find(f => f.Item1 === key) : null;
-                        const filterText = filter ? filter.Item2 : '';
+                    return (
+                        <div key={index}>
 
-                        return (
-                            <div key={index}>
-
-                                <div onClick={() => this.handleSort(key)}>
-                                    {columns[key].text}
-                                    {
-                                        (!!sortedColumn && !!sortedColumn[key]) && (sortedColumn[key] === sort.ASC ? ArrowDown() : ArrowUp())
-                                    }
-                                </div>
-
-                                <div className='filter'>
-                                    <input
-                                        type='text'
-                                        placeholder='Введите тест и нажмите enter'
-                                        value={filterText}
-                                        onChange={e => this.handleChangeText(key, e)}
-                                        onKeyPress={e => this.handleFilter(e)}
-                                    />
-                                    <button
-                                        onClick={e => this.handleClearFilter(key, e)}
-                                        disabled={!filter}
-                                    >
-                                        {Filter(filter ? 'black' : 'gray')}
-                                        <span className="tooltiptext">Сброс фильтра</span>
-                                    </button>
-                                </div>
-
+                            <div onClick={() => handleSort(key)}>
+                                {columns[key].text}
+                                {
+                                    (!!sortedColumn && !!sortedColumn[key]) && (sortedColumn[key] === sort.ASC ? ArrowDown() : ArrowUp())
+                                }
                             </div>
-                        )
-                    })
-                }
-            </div>
-        )
-    }
+
+                            <div className='filter'>
+                                <input
+                                    type='text'
+                                    placeholder='Введите тест и нажмите enter'
+                                    value={filterText}
+                                    onChange={e => handleChangeText(key, e)}
+                                    onKeyPress={e => handleFilter(e)}
+                                />
+                                <button
+                                    onClick={e => handleClearFilter(key, e)}
+                                    disabled={!filter}
+                                >
+                                    {Filter(filter ? 'black' : 'gray')}
+                                    <span className="tooltiptext">Сброс фильтра</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
 }
 
 
 const mapStateToProps = (state, ownProps) => ({
     columns: ownProps.columns,
-    itemsCount: state.requestUsers.itemsCount
+    visibleCount: state.requestStudents.visibleCount
 });
 
 const mapDispatchToProps = {
-    getUsers
+    GET
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Headers));

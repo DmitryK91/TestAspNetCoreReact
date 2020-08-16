@@ -1,48 +1,37 @@
 import React from 'react'
 import Headers from './headers';
 import Rows from './rows';
-import Pages from './pages';
+import Student from '../student';
 
 
 const Table = () => {
 
     const columns = {
-        id: {
-            text: 'ID'
+        firstName: {
+            text: 'Имя',
+            build: (data) => <Student data={data} text={data?.firstName} />
         },
-        name: {
-            text: 'Имя'
+        lastName: {
+            text: 'Фамилия',
+            build: (data) => <Student data={data} text={data?.lastName} />
         },
-        birthDate: {
-            text: 'Дата рождения',
-            build: (data) => {
-                const date = new Date(data);
-                const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                };
-
-                return date.toLocaleString('ru', options)
-            }
+        patronymic: {
+            text: 'Отчество',
+            build: (data) => <Student data={data} text={data?.patronymic} />
         },
         sex: {
             text: 'Пол',
-            build: (data) => data === 1 ? 'муж.' : 'жен.'
+            build: (data) => data.sex ? 'муж.' : 'жен.'
         },
-        requestCount: {
-            text: 'Количество заявок'
+        uniqID: {
+            text: 'Уникальный ID'
         }
     }
 
     return (
         <div className='table'>
-            <div>
-                <Headers columns={columns} />
-                <Rows columns={columns} />
-            </div>
-
-            <Pages />
+            <Headers columns={columns} />
+            <Rows columns={columns} />
         </div>
     )
 }

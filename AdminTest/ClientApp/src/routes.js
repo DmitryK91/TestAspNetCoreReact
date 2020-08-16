@@ -1,16 +1,16 @@
 import React from 'react';
 import { Route, Switch } from 'react-router';
 
-import Table from './components/table';
+import Page from './components/page';
 
 
 const Routes = () => (
 
     <Switch>
 
-        <Route exact
-            path={`/:page([0-9]+)?`}
-            component={Table} />
+        <Route path={`/:page([0-9]+)?`}>
+            <Page />
+        </Route>
 
     </Switch>
 

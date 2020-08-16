@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Models;
 
@@ -5,8 +6,12 @@ namespace DBRepository.Interfaces
 {
     public interface IUsersRepository
     {
-        Task<bool> AddAsync(User user);
+        Task<User> AddAsync(User user);
 
-        Task<Result> GetUsersAsync(int Page, Response response);
+        Task<User> GetAsync(Guid userID);
+
+        Task<bool> EditAsync(User user);
+
+        Task<bool> DeleteAsync(Guid userID);
     }
 }

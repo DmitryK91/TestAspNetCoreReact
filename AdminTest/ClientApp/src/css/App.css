@@ -104,3 +104,17 @@
 .filter button:hover .tooltiptext {
     visibility: visible;
 }
+
+.link {
+    color: #064a84;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.page-header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}

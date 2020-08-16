@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Models
@@ -6,15 +7,16 @@ namespace Models
     public class User
     {
         [Key]
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        [MinLength(3)]
+        public string Login { get; set; }
 
-        public DateTime BirthDate { get; set; }
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; }
 
-        public byte Sex { get; set; }
-
-        public int RequestCount { get; set; }
+        public List<Student> UserStudents { get; set; }
     }
 }

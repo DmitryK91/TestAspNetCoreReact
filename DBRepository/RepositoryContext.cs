@@ -11,25 +11,27 @@ namespace DBRepository
         {
             Database.EnsureCreated();
         }
-        public DbSet<User> Users { get; set; }
+
+        public DbSet<Student> Students { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             var rand = new Random((int)DateTime.Now.Ticks);
-            List<User> users = new List<User>();
+
+            List<Student> students = new List<Student>();
             for (int i = 0; i < 500000; i++)
-                users.Add(new User
+                students.Add(new Student
                 {
-                    ID = i + 1,
-                    Name = "test user " + i.ToString(),
-                    BirthDate = DateTime.Now.AddDays(-rand.Next(365 * 20, 365 * 50)).Date,
+                    ID = Guid.NewGuid(),
                     Sex = (byte)Math.Round((double)rand.Next(0, 1000) / 1000),
-                    RequestCount = rand.Next(0, 100)
+                    FirstName = "FirstName_" + i.ToString(),
+                    LastName = "LastName_" + i.ToString()
                 });
 
-            builder.Entity<User>().HasData(users);
+            builder.Entity<Student>().HasIndex(s => s.UniqID).IsUnique();
+            builder.Entity<Student>().HasData(students);
         }
     }
 }

@@ -2,13 +2,13 @@ import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 
-import { requestUsers } from './actions/reducer';
+import { requestStudents } from './actions/reducer';
 
 
 export default function configureStore(initialState) {
 
     const rootReducer = combineReducers({
-        requestUsers
+        requestStudents
     });
 
     const logger = createLogger();
